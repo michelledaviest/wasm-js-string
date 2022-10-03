@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>DOM based XSS - sync</title>
+</head>
+
+<body>
+  <form>
+    Enter Value of X: <input type="text" id="inpStrX" /> <br>
+    <input id="setX" type="button" value="Save X" />
+    <br>
+    <input id="getX" type="button" value="Get X" />
+    <br>
+    Enter Value of Y: <input type="text" id="inpStrY" /> <br>
+    <input id="setY" type="button" value="Save Y" />
+    <br>
+    <input id="getY" type="button" value="Get Y" />
+    <br>
+  </form>
+  <p>
+    Result: <br>
+    <span id="result"></span>
+  </p>
+
+  <br>
+  <br>
+  Exploit Code: &lt;style onload="alert('XSS')"&gt;&lt;/style&gt;
+
+</body>
+
+<script type='text/javascript'>
+  var Module = {};
+  var wasmURL = 'lib.wasm';
+  var wasmXHR = new XMLHttpRequest();
+  wasmXHR.open('GET', wasmURL, true);
+  wasmXHR.responseType = 'arraybuffer';
+  wasmXHR.onload = function () {
+    if (wasmXHR.status === 200 || wasmXHR.status === 0) {
+      Module.wasmBinary = wasmXHR.response;
+    } else {
+      var wasmURLBytes = tryParseAsDataURI(wasmURL);
+      if (wasmURLBytes) {
+        Module.wasmBinary = wasmURLBytes.buffer;
+      }
+    }
+
+    var script = document.createElement('script');
+    script.src = "lib.js";
+    document.body.appendChild(script);
+
+  };
+  wasmXHR.send(null);
+
+
+</script>
+<script type="text/javascript">
+
+  function setValueX() {
+    let val = document.getElementById("inpStrX").value;
+    _setX(allocateUTF8(val));
+  }
+
+  function getValueX() {
+    const storedValue = UTF8ToString(Module._getX());
+    document.getElementById("result").innerHTML = `The stored value of X is: ${storedValue}`;
+  }
+
+  function setValueY() {
+    let val = document.getElementById("inpStrY").value;
+    _setY(allocateUTF8(val));
+  }
+
+  function getValueY() {
+    const storedValue = UTF8ToString(Module._getY());
+    document.getElementById("result").innerHTML = `The stored value of Y is: ${storedValue}`;
+  }
+
+  document.getElementById("setX").addEventListener("click", setValueX);
+  document.getElementById("getX").addEventListener("click", getValueX);
+  document.getElementById("setY").addEventListener("click", setValueY);
+  document.getElementById("getY").addEventListener("click", getValueY);
+
+</script>
+
+</html>

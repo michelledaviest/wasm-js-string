@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html> 
+
+    <head>
+		<meta charset=utf-8 />
+		<title>WASM Exploits</title>
+		<style type="text/css">
+			body {margin: 30px;}
+		</style> 
+	</head>
+
+	<body>
+
+        <p>Hello and welcome to WASM vulnerabilities</p>
+
+        <p>This repository contains 3 different vulnerabilities (although all of them arguably have some form of XSS). 
+            Nevertheless, the 3 vulnerabilities are as follows:
+            <ul>
+                <li>
+                    <strong><a href="/dom-based-xss/async/">Simple DOM-based XSS: </a></strong> This is a simple DOM-based XSS vulnerability with a data flow from
+                    JavaScript to WASM and back. This is as a baseline example for data flow analysis of WASM. Click on either of
+                    the links below to see it in action:
+                    <br>
+                    *Note: The only difference between sync and async is an emscripten compilation flag and how the scripts are loaded.
+                    <ul>
+                        <li><a href="/dom-based-xss/sync/">Sync version</a> *does NOT work on Chrome.</li>
+                        <li><a href="/dom-based-xss/async/">Async version</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <strong><a href="/buffer-overflow/">Buffer Overflow: </a></strong> This is a C buffer overflow example caused by mismatched buffer sizes between
+                    JavsScript and C code and some really poor programming overall. Click <a href="/buffer-overflow/">here</a>
+                    to see the buffer overflow in action.
+                </li>
+                <li>
+                    <strong><a href="/arbitrary-code-execution/">Arbitrary Code Injection: </a></strong> This is an example of using the unsafe Javascript API (eval) in WASM
+                    to invoke alert. This lets the user inject and execute arbitrary code. Click <a href="/arbitrary-code-execution/">here</a>
+                    to see the ACE in action.
+                </li>
+            </ul>
+        </p>
+
+	</body>
+
+</html>

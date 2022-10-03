@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html> 
+
+	<head>
+		<meta charset=utf-8 />
+		<title>Arbitrary Code Execution</title>
+		<style type="text/css">
+			body {margin: 30px;}
+		</style> 
+	</head>
+
+	<body>
+		<form>
+			Enter text you want to alert: <input type="text" id="alert-contents" /> <br>
+			<input id="alertThis" type="button" value="Alert This!" />
+			<br>
+		</form>
+	
+        <br>
+        <br>
+        Exploit code: '); console.log('script injected
+
+    </body>
+    <script src="lib.js"></script>
+	<script type="text/javascript">
+
+        function alertContents() {
+            const contents = document.getElementById("alert-contents").value;
+            _executeScript(allocateUTF8(`alert('${contents}')`));
+        }
+		
+        document.getElementById("alertThis").addEventListener("click", alertContents);
+
+	</script>
+</html>

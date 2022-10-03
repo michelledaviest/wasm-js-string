@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html> 
+
+	<head>
+		<meta charset=utf-8 />
+		<title>Simple Calculator</title>
+		<style type="text/css">
+			body {margin: 30px;}
+		</style> 
+	</head>
+
+	<body>
+		<form>
+			Enter Value of X: <input type="text" id="inpStrX" /> <br>
+			<input id="setX" type="button" value="Save X" />
+			<br>
+			<input id="getX" type="button" value="Get X" />
+			<br>
+			Enter Value of Y: <input type="text" id="inpStrY" /> <br>
+			<input id="setY" type="button" value="Save Y" />
+			<br>
+			<input id="getY" type="button" value="Get Y" />
+			<br>
+		</form>
+		<p>
+			Result: <br>
+			<span id = "result"></span>
+		</p>
+	
+        <br>
+        <br>
+        <p>Exploit Code:</p>
+        <p>Enter the following value in X: AAAAAAAAHello</p>
+        <p>Click on "save X"</p>
+        <p>Click on "get Y"</p>
+        <p>You should get back "Hello"</p>
+
+    </body>
+	<script type="text/javascript">
+
+		(async function() {
+
+			const MAX_BUFFER_SIZE = 20;
+			const importObject = {
+				imports: { imported_func: arg => console.log(arg) }
+			};
+			
+			const wasmObj = await WebAssembly.instantiateStreaming(fetch('lib.wasm'), importObject);
+			
+			const {memory, setX, getX, getSizeX, setY, getY, getSizeY} = wasmObj.instance.exports;
+
+			const arrayX = new Int32Array(memory.buffer, 0, MAX_BUFFER_SIZE)
+			const arrayY = new Int32Array(memory.buffer, MAX_BUFFER_SIZE * Int32Array.BYTES_PER_ELEMENT, MAX_BUFFER_SIZE)
+			const arrayResult = new Int32Array(memory.buffer, 2 * MAX_BUFFER_SIZE * Int32Array.BYTES_PER_ELEMENT, MAX_BUFFER_SIZE)
+
+
+			function setValueX() {
+				let val = document.getElementById("inpStrX").value;
+				arrayX.set([...val].map(c => c.charCodeAt(0)));
+				setX(arrayX.byteOffset, val.length);
+			}
+			
+			function getValueX() {
+				getX(arrayResult.byteOffset);
+				let storedValue = "";
+				const sizeX = getSizeX();
+				for(let i=0; i < sizeX; i++) {
+					storedValue += String.fromCharCode(arrayResult[i]);
+				}
+				document.getElementById("result").innerHTML = `The stored value is: ${storedValue}`;
+			}
+
+			function setValueY() {
+				let val = document.getElementById("inpStrY").value;
+				arrayY.set([...val].map(c => c.charCodeAt(0)));
+				setY(arrayY.byteOffset, val.length);
+			}
+			
+			function getValueY() {
+				getY(arrayResult.byteOffset);
+				let storedValue = "";
+				const sizeY = getSizeY();
+				for(let i=0; i < sizeY; i++) {
+					storedValue += String.fromCharCode(arrayResult[i]);
+				}
+				document.getElementById("result").innerHTML = `The stored value is: ${storedValue}`;
+			}
+
+			document.getElementById("setX").addEventListener("click", setValueX);
+			document.getElementById("getX").addEventListener("click", getValueX);
+			document.getElementById("setY").addEventListener("click", setValueY);
+			document.getElementById("getY").addEventListener("click", getValueY);
+
+		}());
+	
+	</script>
+</html>
